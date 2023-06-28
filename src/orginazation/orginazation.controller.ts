@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
+import { BadRequestException, Controller, Get } from '@nestjs/common';
 import { Orginazation } from './schemas/orginazation.schema';
 import { OrginazationService } from './orginazation.service';
 

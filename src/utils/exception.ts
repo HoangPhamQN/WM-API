@@ -27,7 +27,6 @@ export class AllExceptionsFilter implements ExceptionFilter {
         errorMessage: message,
       });
     };
-
     // Throw an exceptions for either
     // MongoError, ValidationError, TypeError, CastError and Error
     if (exception.message['error']) {

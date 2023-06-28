@@ -5,6 +5,7 @@ import { AppService } from './app.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule } from '@nestjs/config';
 import { OrginazationModule } from './orginazation/orginazation.module';
+import { RoleModule } from './role/role.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { OrginazationModule } from './orginazation/orginazation.module';
       }),
     }),
     OrginazationModule,
+    RoleModule,
   ],
   controllers: [AppController],
   providers: [AppService],
