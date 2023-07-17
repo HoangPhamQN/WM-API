@@ -8,7 +8,6 @@ import { OrginazationModule } from './orginazation/orginazation.module';
 import { RoleModule } from './role/role.module';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
-import { TokenExpirationMiddleware } from './middlewares/tokenexpiration.middleware';
 
 @Module({
   imports: [
@@ -26,14 +25,4 @@ import { TokenExpirationMiddleware } from './middlewares/tokenexpiration.middlew
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {
-  // configure(consumer: MiddlewareConsumer) {
-  //   consumer
-  //     .apply(TokenExpirationMiddleware)
-  //     .exclude(
-  //       { path: 'auth/google/login', method: RequestMethod.GET },
-  //       { path: 'auth/google/callback', method: RequestMethod.GET },
-  //     )
-  //     .forRoutes('*');
-  // }
-}
+export class AppModule {}

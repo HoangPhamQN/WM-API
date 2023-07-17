@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { OAuth2Client } from 'google-auth-library';
 import axios from 'axios';
 import * as jwt from 'jsonwebtoken';
+import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class AuthService {
@@ -10,7 +11,7 @@ export class AuthService {
   private readonly redirectUri: string;
   private readonly oAuth2Client: OAuth2Client;
 
-  constructor() {
+  constructor(private readonly userService: UserService) {
     this.clientId = process.env.CLIENT_ID;
     this.clientSecret = process.env.CLIENT_SECRET;
     this.redirectUri = process.env.REDIRECT_URI;
@@ -70,33 +71,19 @@ export class AuthService {
     }
   }
 
-  async refreshAccessToken(refreshToken: string): Promise<string> {
+  async refreshIdToken(refreshToken: string): Promise<string> {
     const clientId = this.clientId;
     const clientSecret = this.clientSecret;
-
+    const user = await this.userService.getUserByRefreshToken(refreshToken);
+    if (!user) {
+      return null;
+    }
     const response = await axios.post('https://oauth2.googleapis.com/token', {
       refresh_token: refreshToken,
       client_id: clientId,
       client_secret: clientSecret,
       grant_type: 'refresh_token',
     });
-
-    const accessToken = response.data.access_token;
-    console.log(3333, response?.data);
-    return accessToken;
-  }
-
-  async fetchGooglePublicKey(): Promise<string> {
-    const response = await axios.get(
-      'https://www.googleapis.com/oauth2/v3/certs',
-    );
-    const keys = response.data;
-    return keys;
-  }
-
-  convertToPEMFormat(publicKey: string): string {
-    const pemHeader = '-----BEGIN PUBLIC KEY-----\n';
-    const pemFooter = '\n-----END PUBLIC KEY-----';
-    return pemHeader + publicKey + pemFooter;
+    return response?.data?.id_token ? response?.data?.id_token : null;
   }
 }
