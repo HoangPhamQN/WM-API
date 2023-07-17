@@ -16,4 +16,8 @@ export class UserService {
   async getUserByEmail(email: string): Promise<User> {
     return await this.userModel.findOne({ email: email });
   }
+
+  async getUserByRefreshToken(refreshToken: string): Promise<User> {
+    return await this.userModel.findOne({ refreshToken: refreshToken });
+  }
 }

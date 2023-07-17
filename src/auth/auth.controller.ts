@@ -1,4 +1,12 @@
-import { Controller, Get, Req, Res, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Req,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import { Request, Response } from 'express';
 import { AuthService } from './auth.service';
 import { UserService } from 'src/user/user.service';
@@ -26,6 +34,20 @@ export class AuthController {
     );
     const userInfor = await this.authService.getUserInfo(idToken);
     await this.userService.createUser({ refreshToken, email: userInfor.email });
-    res.status(200).json({ userInfor, idToken });
+    res.status(200).json({ userInfor, idToken, refreshToken });
+  }
+
+  @Post('refresh')
+  async refreshIdToken(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Body('refresh-token') refreshToken: string,
+  ) {
+    const idToken = await this.authService.refreshIdToken(refreshToken);
+    if (!idToken) {
+      res.status(401).json({ message: 'Unauthorized' });
+    } else {
+      res.status(200).json({ idToken });
+    }
   }
 }
