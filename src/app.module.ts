@@ -8,6 +8,7 @@ import { OrginazationModule } from './orginazation/orginazation.module';
 import { RoleModule } from './role/role.module';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
+import { FirebaseService } from './utils/upload';
 
 @Module({
   imports: [
@@ -23,6 +24,6 @@ import { AuthModule } from './auth/auth.module';
     AuthModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, FirebaseService],
 })
 export class AppModule {}
