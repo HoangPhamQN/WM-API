@@ -5,6 +5,7 @@ import {
   UseInterceptors,
   UploadedFile,
   Res,
+  Body,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Multer } from 'multer';
@@ -26,8 +27,18 @@ export class AppController {
 
   @Post('image')
   @UseInterceptors(FileInterceptor('file'))
-  async uploadImage(@UploadedFile() file: Multer.File, @Res() res: Response) {
-    const imageUrl = await this.firebaseService.uploadImage(file);
-    res.status(200).json({ imageUrl });
+  async uploadImage(
+    @UploadedFile() file: Multer.File,
+    @Body() body: any,
+    @Res() res: Response,
+  ) {
+    // try {
+    //   if (file) {
+    //     const imageUrl = await this.firebaseService.uploadImage(file);
+    //     body['avatar'] = imageUrl;
+    //   }
+    // } catch (error) {}
+    // const imageUrl = await this.firebaseService.uploadImage(file);
+    // res.status(200).json({ imageUrl });
   }
 }
