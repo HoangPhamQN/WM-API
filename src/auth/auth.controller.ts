@@ -9,12 +9,15 @@ import {
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { AuthService } from './auth.service';
+import { RoleService } from 'src/role/role.service';
+import { CreateUserDto } from 'src/user/dto/create-user.dto';
 import { UserService } from 'src/user/user.service';
 
 @Controller('auth/google')
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
+    private roleService: RoleService,
     private userService: UserService,
   ) {}
 
@@ -32,8 +35,19 @@ export class AuthController {
     const { refreshToken, idToken } = await this.authService.getIdTokenFromCode(
       code,
     );
-    const userInfor = await this.authService.getUserInfo(idToken);
-    await this.userService.createUser({ refreshToken, email: userInfor.email });
+    let userInfor = await this.authService.getUserInfo(idToken);
+    const userRole: any = await this.roleService.findByName(
+      process.env.COMMON_USER,
+    );
+    const userBody: CreateUserDto = {
+      role: [userRole?._id],
+      organization: null,
+      name: userInfor?.name,
+      email: userInfor?.email,
+      avtUrl: userInfor?.picture,
+      refreshToken: refreshToken,
+    };
+    userInfor = await this.userService.createOrUpdateUser(userBody);
     res.status(200).json({ userInfor, idToken, refreshToken });
   }
 

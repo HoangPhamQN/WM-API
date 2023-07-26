@@ -18,4 +18,8 @@ export class RoleService {
   async create(roleBody: CreateRoleDto): Promise<Role> {
     return await this.roleModel.create(roleBody);
   }
+
+  async findByName(name: string): Promise<Role> {
+    return await this.roleModel.findOne({ name: name });
+  }
 }
