@@ -34,11 +34,10 @@ export class AuthService {
 
   async getIdTokenFromCode(code: string): Promise<any> {
     const { tokens } = await this.oAuth2Client.getToken(code);
-    // const accessToken = tokens.access_token;
-    const refreshToken = tokens.refresh_token;
+    console.log(3333, tokens);
     const idToken = tokens.id_token;
 
-    return { refreshToken, idToken };
+    return { idToken };
   }
 
   async getUserInfo(idToken: string): Promise<any> {
@@ -82,5 +81,15 @@ export class AuthService {
       grant_type: 'refresh_token',
     });
     return response?.data?.id_token ? response?.data?.id_token : null;
+  }
+
+  public createAccessToken(payload: any): string {
+    const expiresIn = process.env.ACCESS_TOKEN_EXPIRE;
+    return jwt.sign(payload, process.env.JWT_SECRET, { expiresIn });
+  }
+
+  public createRefreshToken(payload: any): string {
+    const expiresIn = process.env.REFRESH_TOKEN_EXPIRE;
+    return jwt.sign(payload, process.env.JWT_SECRET, { expiresIn });
   }
 }

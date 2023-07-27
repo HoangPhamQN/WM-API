@@ -15,7 +15,7 @@ export class UserService {
     if (!user) {
       return (await this.userModel.create(body)).populate('role');
     } else {
-      user.refreshToken = body?.refreshToken;
+      // user.refreshToken = body?.refreshToken;
       return (await user.save()).populate('role');
     }
   }

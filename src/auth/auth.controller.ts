@@ -32,9 +32,7 @@ export class AuthController {
   @Get('callback')
   async callback(@Req() req: Request, @Res() res: Response) {
     const code = req.query.code as string;
-    const { refreshToken, idToken } = await this.authService.getIdTokenFromCode(
-      code,
-    );
+    const { idToken } = await this.authService.getIdTokenFromCode(code);
     let userInfor = await this.authService.getUserInfo(idToken);
     const userBody: CreateUserDto = {
       role: [process.env.COMMON_USER],
@@ -42,10 +40,17 @@ export class AuthController {
       name: userInfor?.name,
       email: userInfor?.email,
       avtUrl: userInfor?.picture,
-      refreshToken: refreshToken,
     };
     userInfor = await this.userService.createOrUpdateUser(userBody);
-    res.status(200).json({ userInfor, idToken, refreshToken });
+    const accessToken = this.authService.createAccessToken({
+      sub: userInfor._id,
+      userInforname: userInfor.userInforname,
+    });
+    const refreshToken = this.authService.createRefreshToken({
+      sub: userInfor._id,
+      userInforname: userInfor.username,
+    });
+    res.status(200).json({ userInfor, accessToken, refreshToken });
   }
 
   @Post('refresh')
