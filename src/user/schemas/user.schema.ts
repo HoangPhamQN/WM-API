@@ -23,6 +23,8 @@ export class User {
 
   @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Role' }] })
   role: Role;
+
+  [key: string]: any;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

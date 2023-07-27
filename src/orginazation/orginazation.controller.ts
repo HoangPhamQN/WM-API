@@ -57,10 +57,10 @@ export class OrginazationController {
       }
       body.isDeleted = false;
       const organization = await this.organazationService.create(body);
-      await this.userService.updateUserRole(
-        body?.createdBy,
-        process.env.ORGANIZATION_ADMIN,
-      );
+      await this.userService.updateUser(body?.createdBy, {
+        role: process.env.ORGANIZATION_ADMIN,
+        organization: organization?._id,
+      });
       res.status(201).json({ organization });
     } catch (error) {
       throw new BadRequestException(error.message);

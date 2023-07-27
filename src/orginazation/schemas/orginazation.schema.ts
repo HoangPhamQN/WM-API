@@ -23,6 +23,8 @@ export class Orginazation {
 
   @Prop()
   isDeleted: boolean;
+
+  _id: mongoose.Schema.Types.ObjectId;
 }
 
 export const OrginazationSchema = SchemaFactory.createForClass(
