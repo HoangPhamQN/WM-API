@@ -16,6 +16,9 @@ export class User {
   @Prop()
   refreshToken: string;
 
+  @Prop()
+  avtUrl: string;
+
   @Prop({
     type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Orginazation' }],
   })

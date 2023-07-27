@@ -25,7 +25,7 @@ export class AuthService {
   getAuthorizationUrl(): string {
     const scopes = ['email', 'profile']; // Add any additional scopes you need
     const authUrl = this.oAuth2Client.generateAuthUrl({
-      access_type: 'offline',
+      access_type: process.env.ACCESS_TYPE,
       scope: scopes,
     });
 
