@@ -35,6 +35,7 @@ export class AuthController {
     const { refreshToken, idToken } = await this.authService.getIdTokenFromCode(
       code,
     );
+    console.log(1111, refreshToken);
     let userInfor = await this.authService.getUserInfo(idToken);
     const userBody: CreateUserDto = {
       role: [process.env.COMMON_USER],
@@ -44,6 +45,7 @@ export class AuthController {
       avtUrl: userInfor?.picture,
       refreshToken: refreshToken,
     };
+    console.log(2222, userBody);
     userInfor = await this.userService.createOrUpdateUser(userBody);
     res.status(200).json({ userInfor, idToken, refreshToken });
   }
