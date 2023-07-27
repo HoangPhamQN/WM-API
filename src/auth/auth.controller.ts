@@ -36,11 +36,8 @@ export class AuthController {
       code,
     );
     let userInfor = await this.authService.getUserInfo(idToken);
-    const userRole: any = await this.roleService.findByName(
-      process.env.COMMON_USER,
-    );
     const userBody: CreateUserDto = {
-      role: [userRole?._id],
+      role: [process.env.COMMON_USER],
       organization: null,
       name: userInfor?.name,
       email: userInfor?.email,

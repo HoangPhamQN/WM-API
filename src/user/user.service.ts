@@ -27,4 +27,16 @@ export class UserService {
   async getUserByRefreshToken(refreshToken: string): Promise<User> {
     return await this.userModel.findOne({ refreshToken: refreshToken });
   }
+
+  async updateUser(id: string, body: any): Promise<User> {
+    const user: any = await this.userModel.findById(id);
+    for (let key in body) {
+      if (key === 'organization') {
+        user[key] = user[key] ? [...user[key], body[key]] : [body[key]];
+      } else if (key === 'role') {
+        user[key] = user[key] ? [...user[key], body[key]] : [body[key]];
+      } else user[key] = body[key];
+    }
+    return await user.save();
+  }
 }

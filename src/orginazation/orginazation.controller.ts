@@ -19,12 +19,14 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { OrginazationService } from './orginazation.service';
 import { JwtAuthGuard } from 'src/auth/auth.jwt.gaurd';
 import { FirebaseService } from 'src/utils/upload';
+import { UserService } from 'src/user/user.service';
 
 @Controller('orginazation')
 export class OrginazationController {
   constructor(
     private organazationService: OrginazationService,
     private readonly firebaseService: FirebaseService,
+    private readonly userService: UserService,
   ) {}
 
   @Get()
@@ -55,9 +57,13 @@ export class OrginazationController {
       }
       body.isDeleted = false;
       const organization = await this.organazationService.create(body);
+      await this.userService.updateUser(body?.createdBy, {
+        role: process.env.ORGANIZATION_ADMIN,
+        organization: organization?._id,
+      });
       res.status(201).json({ organization });
     } catch (error) {
-      throw new BadRequestException('Không thể tạo mới Organization!');
+      throw new BadRequestException(error.message);
     }
   }
 

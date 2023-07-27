@@ -38,9 +38,6 @@ export class AuthService {
     const refreshToken = tokens.refresh_token;
     const idToken = tokens.id_token;
 
-    // Lưu trữ refreshToken trong cơ sở dữ liệu hoặc nơi lưu trữ khác để sử dụng sau này
-    // ...
-
     return { refreshToken, idToken };
   }
 
