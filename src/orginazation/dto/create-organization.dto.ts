@@ -3,6 +3,6 @@ export class CreateOrganizationDto {
   readonly email: string;
   readonly description: string;
   isDeleted: boolean;
-  createdBy: string;
+  readonly createdBy: string;
   avtUrl: string;
 }
