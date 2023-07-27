@@ -34,7 +34,6 @@ export class AuthService {
 
   async getIdTokenFromCode(code: string): Promise<any> {
     const { tokens } = await this.oAuth2Client.getToken(code);
-    console.log(3333, tokens);
     const idToken = tokens.id_token;
 
     return { idToken };
@@ -43,44 +42,28 @@ export class AuthService {
   async getUserInfo(idToken: string): Promise<any> {
     const ticket = await this.oAuth2Client.verifyIdToken({
       idToken: idToken,
-      audience: this.clientId, // Thay thế CLIENT_ID bằng Client ID của ứng dụng Google
+      audience: this.clientId,
     });
 
     const payload = ticket.getPayload();
     return payload;
   }
 
-  async isIdTokenExpired(idToken: string): Promise<boolean> {
+  async refreshAccessToken(refreshToken: string): Promise<string> {
     try {
-      const ticket = await this.oAuth2Client.verifyIdToken({
-        idToken: idToken,
-        audience: this.clientId, // Thay thế CLIENT_ID bằng Client ID của ứng dụng Google
-      });
-
-      const payload = ticket.getPayload();
-      const currentTime = Math.floor(Date.now() / 1000);
-
-      return currentTime >= payload.exp;
+      const decodedToken: any = jwt.verify(
+        refreshToken,
+        process.env.JWT_SECRET,
+      );
+      const payload = {
+        sub: decodedToken.sub,
+        username: decodedToken.username,
+      };
+      const expiresIn = process.env.ACCESS_TOKEN_EXPIRE;
+      return jwt.sign(payload, process.env.JWT_SECRET, { expiresIn });
     } catch (error) {
-      // Token verification failed or token is malformed
-      return true;
-    }
-  }
-
-  async refreshIdToken(refreshToken: string): Promise<string> {
-    const clientId = this.clientId;
-    const clientSecret = this.clientSecret;
-    const user = await this.userService.getUserByRefreshToken(refreshToken);
-    if (!user) {
       return null;
     }
-    const response = await axios.post('https://oauth2.googleapis.com/token', {
-      refresh_token: refreshToken,
-      client_id: clientId,
-      client_secret: clientSecret,
-      grant_type: 'refresh_token',
-    });
-    return response?.data?.id_token ? response?.data?.id_token : null;
   }
 
   public createAccessToken(payload: any): string {

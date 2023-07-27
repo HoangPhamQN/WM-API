@@ -14,9 +14,6 @@ export class User {
   email: string;
 
   @Prop()
-  refreshToken: string;
-
-  @Prop()
   avtUrl: string;
 
   @Prop({

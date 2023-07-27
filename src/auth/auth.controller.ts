@@ -44,11 +44,11 @@ export class AuthController {
     userInfor = await this.userService.createOrUpdateUser(userBody);
     const accessToken = this.authService.createAccessToken({
       sub: userInfor._id,
-      userInforname: userInfor.userInforname,
+      username: userInfor.name,
     });
     const refreshToken = this.authService.createRefreshToken({
       sub: userInfor._id,
-      userInforname: userInfor.username,
+      username: userInfor.name,
     });
     res.status(200).json({ userInfor, accessToken, refreshToken });
   }
@@ -59,11 +59,11 @@ export class AuthController {
     @Res() res: Response,
     @Body('refresh-token') refreshToken: string,
   ) {
-    const idToken = await this.authService.refreshIdToken(refreshToken);
-    if (!idToken) {
+    const accessToken = await this.authService.refreshAccessToken(refreshToken);
+    if (!accessToken) {
       res.status(401).json({ message: 'Unauthorized' });
     } else {
-      res.status(200).json({ idToken });
+      res.status(200).json({ accessToken });
     }
   }
 }
