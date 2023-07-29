@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  ForbiddenException,
   Get,
   Post,
   Req,
@@ -59,10 +60,19 @@ export class AuthController {
     @Res() res: Response,
     @Body('refresh-token') refreshToken: string,
   ) {
+    if (!this.authService.validateCanRenewToken(refreshToken)) {
+      // Kiểm tra nếu thời gian hiện tại không được phép yêu cầu token mới thì thông báo lỗi ra cho người dùng
+      throw new ForbiddenException(
+        'Access token is still valid, can not renew now!',
+      );
+    }
     const accessToken = await this.authService.refreshAccessToken(refreshToken);
     if (!accessToken) {
       res.status(401).json({ message: 'Unauthorized' });
     } else {
+      this.authService.removeToken(refreshToken);
+      const newAccessTokenExpireIn = parseInt(process.env.ACCESS_TOKEN_EXPIRE);
+      this.authService.storeToken(refreshToken, newAccessTokenExpireIn);
       res.status(200).json({ accessToken });
     }
   }

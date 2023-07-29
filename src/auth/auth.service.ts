@@ -3,6 +3,7 @@ import { OAuth2Client } from 'google-auth-library';
 import axios from 'axios';
 import * as jwt from 'jsonwebtoken';
 import { UserService } from 'src/user/user.service';
+import { TokenService } from 'src/utils/token';
 
 @Injectable()
 export class AuthService {
@@ -11,7 +12,10 @@ export class AuthService {
   private readonly redirectUri: string;
   private readonly oAuth2Client: OAuth2Client;
 
-  constructor(private readonly userService: UserService) {
+  constructor(
+    private readonly userService: UserService,
+    private readonly tokenService: TokenService,
+  ) {
     this.clientId = process.env.CLIENT_ID;
     this.clientSecret = process.env.CLIENT_SECRET;
     this.redirectUri = process.env.REDIRECT_URI;
@@ -68,11 +72,32 @@ export class AuthService {
 
   public createAccessToken(payload: any): string {
     const expiresIn = process.env.ACCESS_TOKEN_EXPIRE;
-    return jwt.sign(payload, process.env.JWT_SECRET, { expiresIn });
+    const accessToken = jwt.sign(payload, process.env.JWT_SECRET, {
+      expiresIn,
+    });
+    return accessToken;
   }
 
   public createRefreshToken(payload: any): string {
     const expiresIn = process.env.REFRESH_TOKEN_EXPIRE;
-    return jwt.sign(payload, process.env.JWT_SECRET, { expiresIn });
+    const accessTokenExpiresIn = parseInt(process.env.ACCESS_TOKEN_EXPIRE);
+    const refreshToken = jwt.sign(payload, process.env.JWT_SECRET, {
+      expiresIn,
+    });
+    this.tokenService.storeToken(refreshToken, accessTokenExpiresIn);
+    return refreshToken;
+  }
+
+  public validateCanRenewToken(token: string): boolean {
+    // Kiểm tra xem thời gian hiện tại có được phép cấp token mới không
+    return this.tokenService.canRenewToken(token);
+  }
+
+  public removeToken(token: string): void {
+    this.tokenService.removeToken(token);
+  }
+
+  public storeToken(token: string, expiresIn: number): void {
+    this.tokenService.storeToken(token, expiresIn);
   }
 }
