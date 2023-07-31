@@ -4,12 +4,11 @@ import {
   ExceptionFilter,
   HttpException,
   HttpStatus,
-  InternalServerErrorException,
 } from '@nestjs/common';
 
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
-  catch(exception: InternalServerErrorException, host: ArgumentsHost) {
+  catch(exception: any, host: ArgumentsHost) {
     console.log('Error ==>>', exception);
     const ctx = host.switchToHttp();
     const response = ctx.getResponse();
@@ -32,7 +31,9 @@ export class AllExceptionsFilter implements ExceptionFilter {
     if (exception.message['error']) {
       responseMessage('Error', exception.message['error']);
     } else {
-      responseMessage(exception.name, exception.message);
+      if (exception?.message.includes('E11000')) {
+        responseMessage(exception.name, 'Duplicate data');
+      } else responseMessage(exception.name, exception.message);
     }
   }
 }
