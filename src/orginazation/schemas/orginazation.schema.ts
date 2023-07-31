@@ -6,10 +6,10 @@ export type OrginazationDocument = HydratedDocument<Orginazation>;
 
 @Schema()
 export class Orginazation {
-  @Prop()
+  @Prop({ unique: true })
   name: string;
 
-  @Prop()
+  @Prop({ unique: true })
   email: string;
 
   @Prop()
