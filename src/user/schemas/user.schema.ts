@@ -19,12 +19,24 @@ export class User {
   @Prop({
     type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Orginazation' }],
   })
-  organization: Orginazation;
+  organization: Orginazation[];
 
   @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Role' }] })
-  role: Role;
+  role: Role[];
 
   [key: string]: any;
 }
 
-export const UserSchema = SchemaFactory.createForClass(User);
+export const UserSchema = SchemaFactory.createForClass(User)
+  .set('toJSON', {
+    virtuals: true,
+  })
+  .set('timestamps', true);
+
+UserSchema.virtual('orginazations', {
+  ref: 'Orginazation', // The model to use
+  localField: '_id', // Your local field, like a `FOREIGN KEY` in RDS
+  foreignField: 'createdBy', // Your foreign field which `localField` linked to. Like `REFERENCES` in RDS
+  // If `justOne` is true, 'members' will be a single doc as opposed to
+  // an array. `justOne` is false by default.
+});

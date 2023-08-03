@@ -42,7 +42,7 @@ export class AuthController {
       email: userInfor?.email,
       avtUrl: userInfor?.picture,
     };
-    userInfor = await this.userService.createOrUpdateUser(userBody);
+    userInfor = await this.userService.createUser(userBody);
     const accessToken = this.authService.createAccessToken({
       sub: userInfor._id,
       username: userInfor.name,

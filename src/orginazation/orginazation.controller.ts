@@ -11,6 +11,7 @@ import {
   UploadedFile,
   UseGuards,
   UseInterceptors,
+  SetMetadata,
 } from '@nestjs/common';
 import { Multer } from 'multer';
 import { Request, Response } from 'express';
@@ -20,6 +21,8 @@ import { OrginazationService } from './orginazation.service';
 import { JwtAuthGuard } from 'src/auth/auth.jwt.gaurd';
 import { FirebaseService } from 'src/utils/upload';
 import { UserService } from 'src/user/user.service';
+import { Roles } from 'src/decorator/role.decorator';
+import { RoleEnum } from 'src/enum/role.enum';
 
 @Controller('orginazation')
 export class OrginazationController {
@@ -31,6 +34,7 @@ export class OrginazationController {
 
   @Get()
   @UseGuards(JwtAuthGuard)
+  @Roles(RoleEnum.OrganizationAdmin)
   async findAll(@Req() req: any, @Res() res: Response) {
     const orginazation = await this.organazationService.findAll();
     if (req.newIdToken) {
