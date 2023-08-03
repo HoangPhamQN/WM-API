@@ -10,7 +10,7 @@ export class UserService {
     @InjectModel(User.name)
     private userModel: Model<User>,
   ) {}
-  async createOrUpdateUser(body: CreateUserDto): Promise<User> {
+  async createUser(body: CreateUserDto): Promise<User> {
     let user = await this.userModel.findOne({ email: body?.email });
     if (!user) {
       return (await this.userModel.create(body)).populate('role');
@@ -21,6 +21,10 @@ export class UserService {
 
   async getUserByEmail(email: string): Promise<User> {
     return await this.userModel.findOne({ email: email });
+  }
+
+  async getUserById(id: string): Promise<User> {
+    return await this.userModel.findById(id).populate('role');
   }
 
   async getUserByRefreshToken(refreshToken: string): Promise<User> {
@@ -37,5 +41,12 @@ export class UserService {
       } else user[key] = body[key];
     }
     return await user.save();
+  }
+
+  async getOrganizationByOwner(userId: string): Promise<any> {
+    return await this.userModel
+      .findById(userId)
+      .populate('orginazations', '-__v -createdAt -updatedAt')
+      .select('-organization -__v');
   }
 }

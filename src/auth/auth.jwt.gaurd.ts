@@ -1,39 +1,45 @@
 import {
   CanActivate,
   ExecutionContext,
+  ForbiddenException,
   Inject,
   Injectable,
+  UnauthorizedException,
 } from '@nestjs/common';
-import { OAuth2Client } from 'google-auth-library';
+import { Reflector } from '@nestjs/core';
 import * as jwt from 'jsonwebtoken';
+import { ROLES_KEY } from 'src/decorator/role.decorator';
+import { RoleEnum } from 'src/enum/role.enum';
+import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
-  private readonly clientId: string;
-  private readonly clientSecret: string;
-  private readonly redirectUri: string;
-  private readonly oAuth2Client: OAuth2Client;
-
-  constructor() {
-    this.clientId = process.env.CLIENT_ID;
-    this.clientSecret = process.env.CLIENT_SECRET;
-    this.redirectUri = process.env.REDIRECT_URI;
-    this.oAuth2Client = new OAuth2Client({
-      clientId: this.clientId,
-      clientSecret: this.clientSecret,
-      redirectUri: this.redirectUri,
-    });
-  }
+  constructor(
+    private readonly userService: UserService,
+    private reflector: Reflector,
+  ) {}
 
   async canActivate(context: ExecutionContext) {
     const request = context.switchToHttp().getRequest();
     const bearerToken = request.headers.authorization;
     if (!bearerToken) {
-      return false; // Nếu không có Bearer Token, từ chối yêu cầu
+      throw new UnauthorizedException('Unauthorized!');
     }
     const accessToken = bearerToken.replace('Bearer ', '');
     try {
-      const decodedToken = jwt.verify(accessToken, process.env.JWT_SECRET);
+      const decodedToken: any = jwt.verify(accessToken, process.env.JWT_SECRET);
+      const requiredRoles = this.reflector.getAllAndOverride<string[]>(
+        ROLES_KEY,
+        [context.getHandler(), context.getClass()],
+      );
+      const currentUser = await this.userService.getUserById(decodedToken.sub);
+      const userRole = currentUser.role.map((item) => item.name);
+      const hasRequiredRole = userRole.some((role) =>
+        requiredRoles.includes(role),
+      );
+      if (!hasRequiredRole) {
+        return false;
+      }
       return true;
     } catch (error) {
       // hàm verify bên trên sẽ bắn ra error nếu token hết hạn, kiểm tra nếu lỗi do token hết hạn
